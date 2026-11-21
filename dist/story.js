@@ -148,7 +148,7 @@ summon.addEventListener('click',() => {
   if (echoes.length === positions.length) echoes.forEach(echo => echo.remove());
   else {
     const double = document.createElement('img');
-    double.src = cast.querySelector('.original').src;
+    double.src = 'assets/pixel-kurumi.png';
     double.alt = '';
     double.className = 'sprite double';
     double.style.left = positions[echoes.length] + '%';

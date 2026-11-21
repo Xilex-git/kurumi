@@ -50,9 +50,9 @@ nav {gap:clamp(14px,2vw,36px)}
 .pixel-frame {border:1px solid #3d283b;padding:7px;background:#2a2130;box-shadow:7px 8px 0 #907b782f}
 .pixel-world {position:relative;overflow:hidden;aspect-ratio:2.6;background:#433447 url('assets/pixel-city.png') center 94%/cover no-repeat;image-rendering:pixelated}
 .pixel-cast {position:absolute;inset:0}
-.sprite {image-rendering:auto;position:absolute;width:auto;height:64%;bottom:4%;left:50%;translate:-50% 0;filter:drop-shadow(0 3px 0 #22172777)}
-.original {z-index:1;transform-origin:50% 99%;animation:sprite-idle 3.4s ease-in-out infinite}
-.double {height:54%;opacity:.75;filter:sepia(.5) hue-rotate(315deg);animation:echo-in .45s ease-out both}
+.sprite {image-rendering:pixelated;position:absolute;width:clamp(68px,9vw,145px);height:auto;bottom:4%;left:50%;translate:-50% 0;filter:drop-shadow(0 3px 0 #22172777)}
+.original {animation:sprite-idle 1.7s steps(1) infinite}
+.double {width:clamp(55px,7.7vw,128px);opacity:.75;filter:sepia(.5) hue-rotate(315deg);animation:echo-in .45s steps(6) both}
 .pixel-bar {color:#f0d6ba;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 9px 4px;font:14px var(--mono)}
 .pixel-bar button {background:#e8bc9f;border:1px solid #ffe3c6;color:#342535;padding:9px 12px;box-shadow:inset -2px -2px #ad7978}
 .pixel-bar b {color:#8d374a}
@@ -89,7 +89,7 @@ nav {gap:clamp(14px,2vw,36px)}
 @keyframes tumble {from{transform:translateX(-14px) rotate(-35deg) rotateY(18deg)}to{transform:translateX(24px) rotate(100deg) rotateY(69deg)}}
 @keyframes impact {from{scale:.2;opacity:1}to{scale:3.2;opacity:0}}
 @keyframes shard {from{transform:rotate(var(--angle)) translateY(-3px) scale(.5);opacity:1}to{transform:rotate(var(--angle)) translateY(calc(-1 * var(--reach))) scale(.7);opacity:0}}
-@keyframes sprite-idle {50%{transform:rotate(.35deg) scaleY(1.006)}}
+@keyframes sprite-idle {50%{transform:translateY(-2px)}}
 @keyframes echo-in {from{opacity:0;filter:brightness(2);translate:-65% -2px}to{opacity:.75;translate:-50% 0}}
 @media(max-width:940px){
 
@@ -225,10 +225,3 @@ footer {display:block;padding-block:clamp(38px,6vw,85px) 23px;background:#f5ecdc
   40% {opacity:1}
   100% {transform:translateX(3%);opacity:0}
 }
-
-.eyelid {
-  position:absolute; inset:0; z-index:2; width:100%; height:100%;
-  pointer-events:none; opacity:0;
-  mask-image:radial-gradient(ellipse 80% 74% at 50% 52%,black 62%,transparent 96%);
-}
-@media(prefers-reduced-motion:reduce) { .eyelid {display:none} }
