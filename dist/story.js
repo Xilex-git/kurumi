@@ -2,12 +2,16 @@ const root = document.documentElement;
 const scenes = [...document.querySelectorAll('main section')];
 const links = [...document.querySelectorAll('nav a')];
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-const motion = document.querySelector('#motion');
-let motionAllowed = true;
-try { motionAllowed = localStorage.getItem('archive-motion') !== 'off'; } catch {}
-const effectsOn = () => motionAllowed && !reduced.matches;
-const menu = document.querySelector('#chapter-select');
-menu.addEventListener('change', () => { location.hash = menu.value; });
+const effectsOn = () => !reduced.matches;
+const chapterNav = document.querySelector('nav[aria-label="Chapters"]');
+let displayedLink;
+function moveChapterInk(link, centerLink = false) {
+  chapterNav.style.setProperty('--tab-x', link.offsetLeft + 'px');
+  chapterNav.style.setProperty('--tab-width', link.offsetWidth + 'px');
+  if (centerLink && chapterNav.scrollWidth > chapterNav.clientWidth) {
+    chapterNav.scrollTo({left: link.offsetLeft - (chapterNav.clientWidth - link.offsetWidth) / 2, behavior: effectsOn() ? 'smooth' : 'instant'});
+  }
+}
 const clock = document.querySelector('.clock');
 const hourLabels = ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
 hourLabels.forEach((label,index) => {
@@ -28,7 +32,10 @@ function paint() {
     if (index === chapter) link.setAttribute('aria-current','location');
     else link.removeAttribute('aria-current');
   });
-  menu.value = scenes[chapter].id;
+  if (displayedLink !== links[chapter]) {
+    displayedLink = links[chapter];
+    moveChapterInk(displayedLink, true);
+  }
   scenes[chapter].classList.add('arrived');
   root.style.setProperty('--progress',scrollY / Math.max(1,root.scrollHeight - height));
   if (effectsOn()) {
@@ -40,7 +47,10 @@ function paint() {
 }
 function queuePaint() { if (!frame) frame = requestAnimationFrame(paint); }
 addEventListener('scroll',queuePaint,{passive:true});
-addEventListener('resize',queuePaint);
+new ResizeObserver(() => {
+  if (displayedLink) moveChapterInk(displayedLink, true);
+  queuePaint();
+}).observe(chapterNav);
 paint();
 const powers = {1:['Aleph','Time accelerates for the one she strikes.'],4:['Dalet','Time rewinds for the target, returning it to an earlier state.'],7:['Zayin','Time stands still for the target while the world moves on.']};
 const buttons = [...document.querySelectorAll('[data-hour]')];
@@ -71,22 +81,7 @@ for (let i = 0; i < 21; i++) {
   fall.style.setProperty('--wind', (i % 2 ? 60 : -45) + 'px');
   weather.append(fall);
 }
-function updateMotion() {
-  const active = effectsOn();
-  root.dataset.motion = active ? 'on' : 'off';
-  motion.disabled = reduced.matches;
-  motion.title = reduced.matches ? 'Reduced motion is enabled in your device settings' : 'Toggle page animation';
-  motion.setAttribute('aria-pressed',String(active));
-  motion.querySelector('span').textContent = active ? 'Motion on' : 'Motion off';
-  queuePaint();
-}
-motion.addEventListener('click', () => {
-  motionAllowed = !motionAllowed;
-  try { localStorage.setItem('archive-motion',motionAllowed ? 'on' : 'off'); } catch {}
-  updateMotion();
-});
-reduced.addEventListener('change',updateMotion);
-updateMotion();
+reduced.addEventListener('change',queuePaint);
 
 const effects = document.querySelector('.ink-effects');
 function burst(x,y) {
@@ -110,6 +105,7 @@ document.addEventListener('click',event => {
 });
 const plate = document.querySelector('.detail-plate');
 const descriptions = {
+  full:'Kurumi’s Astral Dress, from headdress to hem.',
   ribbon:'Scarlet ribbons trace the crown of her head.',
   clock:'Gold hands and a ring of numerals fill her left iris.',
   lace:'Black scalloped lace follows the folds of crimson fabric.'
