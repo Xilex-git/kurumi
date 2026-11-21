@@ -35,15 +35,13 @@ nav {gap:clamp(14px,2vw,36px)}
   border:1px solid #b9a38c; background:#f8f1e4; box-shadow:8px 10px 0 #baa99736;
 }
 .detail-window {position:relative; overflow:hidden; aspect-ratio:var(--figure-ratio,2/3); background:#f6efdf}
-.detail-window img {
-  display:block; width:100%; height:100%; transform-origin:0 0;
-  transform:translate(var(--pan-x),var(--pan-y)) scale(var(--zoom));
-  transition:transform .95s cubic-bezier(.22,.73,.2,1);
+.detail-art {
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  opacity:0; transform:scale(1.035);
+  transition:opacity .36s ease, transform .65s cubic-bezier(.2,.76,.26,1);
 }
-.detail-plate[data-view=full] {--pan-x:0%;--pan-y:0%;--zoom:1}
-.detail-plate[data-view=ribbon] {--pan-x:-84%;--pan-y:0%;--zoom:4.5}
-.detail-plate[data-view=clock] {--pan-x:-362%;--pan-y:-53%;--zoom:8}
-.detail-plate[data-view=lace] {--pan-x:-58%;--pan-y:-90%;--zoom:2.2}
+.detail-art.is-visible {z-index:1; opacity:1; transform:none}
+.detail-window {isolation:isolate}
 .detail-plate figcaption {position:relative; inset:auto; color:#51393d; background:#f6ecdd; padding:11px 13px; font-size:14px; line-height:1.45; border:0; box-shadow:none}
 #echo {padding:clamp(68px,10vh,125px) var(--pad);background:#e9dfd6;min-height:95svh}
 .echo-head {grid-template-columns:1fr auto;margin-bottom:clamp(25px,5vh,58px)}
@@ -163,4 +161,67 @@ footer {display:block;padding-block:clamp(38px,6vw,85px) 23px;background:#f5ecdc
 @media(max-width:720px) {
   #angel {grid-template-columns:1fr;gap:35px}
 
+}
+
+/* The incoming chapter's irregular alpha edge reveals the previous painting.
+   Keep the edge outside the text and controls, including at narrow widths. */
+@supports (mask-image:linear-gradient(black,transparent)) {
+  main section + section, footer {
+    --seam-height:clamp(56px,7vw,110px);
+    --edge:url('assets/seam-ink.png');
+    margin-top:calc(-1 * var(--seam-height));
+    mask-image:var(--edge),linear-gradient(#000,#000);
+    mask-size:100% var(--seam-height),100% calc(100% - var(--seam-height) + 1px);
+    mask-position:top,bottom;
+    mask-repeat:no-repeat;
+  }
+  #dress {--seam-height:32px;padding-top:calc(32px + 7vh);padding-bottom:calc(8vh + 100px)}
+  #angel {padding-block:calc(var(--seam-height) + 5vh) calc(80px + 8vh)}
+  #echo {--edge:url('assets/seam-pixel.png');padding-block:calc(var(--seam-height) + 5vh) clamp(98px,12vw,160px)}
+  #autumn {--edge:url('assets/seam-maple.png');--seam-height:clamp(100px,12vw,160px);padding-bottom:calc(100px + 5vh)}
+  #shadow {padding-block:calc(var(--seam-height) + 6vh) calc(80px + 6vh)}
+  footer {position:relative;--seam-height:52px;padding-top:calc(var(--seam-height) + 32px)}
+  .hero-foot {bottom:14px}
+  @media(max-width:720px) {
+    #spirit {padding-bottom:96px}
+    #dress {padding-bottom:82px}
+    #angel {padding-bottom:88px}
+    #echo {padding-bottom:115px}
+    #autumn {padding-bottom:90px}
+  }
+}
+
+/* Brief chapter accents. The underlying artwork stays at full contrast. */
+@media(prefers-reduced-motion:no-preference) {
+  .arrived .eye-study:after {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(113deg,transparent 43%,#ffe5a450 49%,#fff2c180 50%,transparent 55%);
+    background-size:250% 100%; animation:iris-glint 1.25s .35s both;
+    mask-image:radial-gradient(ellipse 22% 34% at 50% 51%,black 70%,transparent);
+  }
+  .arrived .pixel-world:after {
+    content:''; position:absolute; top:18%; left:16%; width:44px; height:2px;
+    background:linear-gradient(90deg,transparent,#fbd9c6);pointer-events:none;
+    animation:falling-star 1s .4s steps(19) both;
+  }
+  .arrived .autumn-panorama:after {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(119deg,transparent 31%,#ffdda91c 41%,transparent 48%,#ffcd9a17 54%,transparent 63%);
+    animation:tree-light 3.6s ease-out both;
+  }
+}
+@keyframes iris-glint {
+  0% {background-position:100% 0;opacity:0}
+  25%,72% {opacity:1}
+  100% {background-position:0 0;opacity:0}
+}
+@keyframes falling-star {
+  0% {transform:rotate(15deg);opacity:0}
+  20% {opacity:.85}
+  100% {transform:translate(92px,25px) rotate(15deg);opacity:0}
+}
+@keyframes tree-light {
+  0% {transform:translateX(-6%);opacity:0}
+  40% {opacity:1}
+  100% {transform:translateX(3%);opacity:0}
 }

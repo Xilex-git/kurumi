@@ -110,13 +110,35 @@ const descriptions = {
   clock:'Gold hands and a ring of numerals fill her left iris.',
   lace:'Black scalloped lace follows the folds of crimson fabric.'
 };
-document.querySelectorAll('[data-detail]').forEach(button => {
-  button.addEventListener('click',() => {
-    plate.dataset.view = button.dataset.detail;
-    plate.querySelector('figcaption').textContent = descriptions[button.dataset.detail];
-    document.querySelectorAll('[data-detail]').forEach(other => other.setAttribute('aria-pressed',String(other === button)));
-  });
-});
+const detailButtons = [...document.querySelectorAll('[data-detail]')];
+const illustrations = [...plate.querySelectorAll('[data-art]')];
+let requestedView = plate.dataset.view;
+
+async function selectDetail(view) {
+  requestedView = view;
+  const image = illustrations.find(item => item.dataset.art === view);
+  try {
+    image.loading = 'eager';
+    await image.decode();
+  } catch {
+    if (requestedView === view) plate.querySelector('figcaption').textContent = 'This illustration could not load. Select the detail to retry.';
+    return;
+  }
+  // A slower image must not replace the reader’s most recent selection.
+  if (view !== requestedView) return;
+  plate.dataset.view = view;
+  for (const item of illustrations) {
+    item.classList.toggle('is-visible',item === image);
+    item.setAttribute('aria-hidden',String(item !== image));
+  }
+  plate.querySelector('figcaption').textContent = descriptions[view];
+  for (const button of detailButtons) {
+    button.setAttribute('aria-pressed',String(button.dataset.detail === view));
+  }
+}
+for (const button of detailButtons) {
+  button.addEventListener('click',() => selectDetail(button.dataset.detail));
+}
 const cast = document.querySelector('.pixel-cast');
 const summon = document.querySelector('#summon');
 const positions = [33,66,20,78];
