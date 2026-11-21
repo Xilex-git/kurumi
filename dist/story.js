@@ -2,6 +2,12 @@ const root = document.documentElement;
 const scenes = [...document.querySelectorAll('main section')];
 const links = [...document.querySelectorAll('nav a')];
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+const motion = document.querySelector('#motion');
+let motionAllowed = true;
+try { motionAllowed = localStorage.getItem('archive-motion') !== 'off'; } catch {}
+const effectsOn = () => motionAllowed && !reduced.matches;
+const menu = document.querySelector('#chapter-select');
+menu.addEventListener('change', () => { location.hash = menu.value; });
 const clock = document.querySelector('.clock');
 const hourLabels = ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
 hourLabels.forEach((label,index) => {
@@ -22,12 +28,14 @@ function paint() {
     if (index === chapter) link.setAttribute('aria-current','location');
     else link.removeAttribute('aria-current');
   });
+  menu.value = scenes[chapter].id;
   scenes[chapter].classList.add('arrived');
   root.style.setProperty('--progress',scrollY / Math.max(1,root.scrollHeight - height));
-  if (!reduced.matches) {
+  if (effectsOn()) {
     root.style.setProperty('--drift',Math.min(scrollY * .20,180) + 'px');
-    clock.style.setProperty('--ring',(height * .55 - rects[1].top) * .16 + 'deg');
-    root.style.setProperty('--night-drift',Math.max(-50,Math.min(50,-rects[2].top * .15)) + 'px');
+    clock.style.setProperty('--ring',(height * .55 - rects[2].top) * .16 + 'deg');
+    root.style.setProperty('--autumn-drift',Math.max(-70,Math.min(70,-rects[4].top * .14)) + 'px');
+    root.style.setProperty('--night-drift',Math.max(-50,Math.min(50,-rects[5].top * .15)) + 'px');
   }
 }
 function queuePaint() { if (!frame) frame = requestAnimationFrame(paint); }
@@ -43,31 +51,92 @@ buttons.forEach(button => button.addEventListener('click',() => {
   document.querySelector('.power h3').textContent = powers[hour][0];
   document.querySelector('.power p').textContent = powers[hour][1];
 }));
-const sound = document.querySelector('#sound');
-let audio, timer, playing = false, beat = 0;
-function tick() {
-  if (document.hidden || !audio || audio.state !== 'running') return;
-  const tone = audio.createOscillator();
-  const volume = audio.createGain();
-  tone.type = 'triangle';
-  tone.frequency.value = beat++ % 2 ? 1120 : 810;
-  volume.gain.setValueAtTime(.045,audio.currentTime);
-  volume.gain.exponentialRampToValueAtTime(.0001,audio.currentTime + .04);
-  tone.connect(volume).connect(audio.destination);
-  tone.start();
-  tone.stop(audio.currentTime + .05);
+
+const loader = document.querySelector('.prologue');
+const finishIntro = () => loader.remove();
+loader.addEventListener('animationend', event => {
+  if (event.target === loader) finishIntro();
+});
+setTimeout(finishIntro, 1600);
+
+const weather = document.querySelector('.weather');
+for (let i = 0; i < 21; i++) {
+  const fall = document.createElement('i');
+  fall.append(document.createElement('b'));
+  fall.style.left = ((i * 37) % 103) + '%';
+  fall.style.setProperty('--fall', (9 + i % 8) + 's');
+  fall.style.setProperty('--delay', (-i * 2.87) + 's');
+  fall.style.setProperty('--size', (13 + (i * 7) % 17) + 'px');
+  fall.style.setProperty('--hue', ((i % 4) * 8 - 10) + 'deg');
+  fall.style.setProperty('--wind', (i % 2 ? 60 : -45) + 'px');
+  weather.append(fall);
 }
-sound.addEventListener('click',async () => {
-  sound.disabled = true;
-  try {
-    if (playing) { clearInterval(timer); playing = false; await audio.suspend(); }
-    else {
-      audio ||= new (window.AudioContext || window.webkitAudioContext)();
-      await audio.resume();
-      playing = true; tick(); timer = setInterval(tick,1000);
-    }
-    sound.setAttribute('aria-pressed',String(playing));
-    sound.querySelector('span').textContent = playing ? 'Sound on' : 'Sound off';
-  } catch { sound.querySelector('span').textContent = 'Sound unavailable'; }
-  finally { sound.disabled = false; }
+function updateMotion() {
+  const active = effectsOn();
+  root.dataset.motion = active ? 'on' : 'off';
+  motion.disabled = reduced.matches;
+  motion.title = reduced.matches ? 'Reduced motion is enabled in your device settings' : 'Toggle page animation';
+  motion.setAttribute('aria-pressed',String(active));
+  motion.querySelector('span').textContent = active ? 'Motion on' : 'Motion off';
+  queuePaint();
+}
+motion.addEventListener('click', () => {
+  motionAllowed = !motionAllowed;
+  try { localStorage.setItem('archive-motion',motionAllowed ? 'on' : 'off'); } catch {}
+  updateMotion();
+});
+reduced.addEventListener('change',updateMotion);
+updateMotion();
+
+const effects = document.querySelector('.ink-effects');
+function burst(x,y) {
+  if (!effectsOn()) return;
+  if (effects.children.length >= 6) effects.firstElementChild.remove();
+  const mark = document.createElement('div');
+  mark.className = 'sigil';
+  mark.style.left = x + 'px';
+  mark.style.top = y + 'px';
+  for (let i = 0; i < 9; i++) {
+    const shard = document.createElement('i');
+    shard.style.setProperty('--angle',(i * 40 + 10) + 'deg');
+    shard.style.setProperty('--reach',(27 + i % 3 * 8) + 'px');
+    mark.append(shard);
+  }
+  effects.append(mark);
+  setTimeout(() => mark.remove(),660);
+}
+document.addEventListener('click',event => {
+  if (event.detail > 0) burst(event.clientX,event.clientY);
+});
+const plate = document.querySelector('.detail-plate');
+const descriptions = {
+  ribbon:'Scarlet ribbons trace the crown of her head.',
+  clock:'Gold hands and a ring of numerals fill her left iris.',
+  lace:'Black scalloped lace follows the folds of crimson fabric.'
+};
+document.querySelectorAll('[data-detail]').forEach(button => {
+  button.addEventListener('click',() => {
+    plate.dataset.view = button.dataset.detail;
+    plate.querySelector('figcaption').textContent = descriptions[button.dataset.detail];
+    document.querySelectorAll('[data-detail]').forEach(other => other.setAttribute('aria-pressed',String(other === button)));
+  });
+});
+const cast = document.querySelector('.pixel-cast');
+const summon = document.querySelector('#summon');
+const positions = [33,66,20,78];
+const counts = ['One silhouette','Two silhouettes','Three silhouettes','Four silhouettes','Five silhouettes'];
+summon.addEventListener('click',() => {
+  const echoes = [...cast.querySelectorAll('.double')];
+  if (echoes.length === positions.length) echoes.forEach(echo => echo.remove());
+  else {
+    const double = document.createElement('img');
+    double.src = 'assets/pixel-kurumi.png';
+    double.alt = '';
+    double.className = 'sprite double';
+    double.style.left = positions[echoes.length] + '%';
+    cast.append(double);
+  }
+  const total = cast.childElementCount;
+  document.querySelector('#echo-count').textContent = counts[total - 1];
+  summon.firstChild.textContent = total === 5 ? 'Recall the echoes ' : 'Call an echo ';
 });
