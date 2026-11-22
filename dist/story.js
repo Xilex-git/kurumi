@@ -158,3 +158,30 @@ summon.addEventListener('click',() => {
   document.querySelector('#echo-count').textContent = counts[total - 1];
   summon.firstChild.textContent = total === 5 ? 'Recall the echoes ' : 'Call an echo ';
 });
+
+// Leave text and controls usable while a slow illustration decodes.
+for (const frame of document.querySelectorAll('[data-loading-art]')) {
+  const image = frame.querySelector('img');
+  if (image.complete) continue;
+  let tiles;
+  const timer = setTimeout(() => {
+    if (image.complete) return;
+    tiles = document.createElement('div');
+    tiles.className = 'tile-loader';
+    tiles.setAttribute('aria-hidden','true');
+    for (let i = 0; i < 12; i++) {
+      const tile = document.createElement('i');
+      tile.style.setProperty('--phase', ((i % 4 + Math.floor(i / 4)) * -.11) + 's');
+      tiles.append(tile);
+    }
+    frame.prepend(tiles);
+  }, 140);
+  function finish() {
+    clearTimeout(timer);
+    tiles?.remove();
+    image.removeEventListener('load',finish);
+    image.removeEventListener('error',finish);
+  }
+  image.addEventListener('load',finish);
+  image.addEventListener('error',finish);
+}

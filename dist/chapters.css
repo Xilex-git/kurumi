@@ -79,9 +79,9 @@ nav {gap:clamp(14px,2vw,36px)}
 .sigil:before {border:1px solid #832941;animation-delay:.05s}
 .sigil i {position:absolute;width:5px;height:17px;background:#97384b;clip-path:polygon(50% 0,100% 72%,50% 100%,0 72%);animation:shard .56s ease-out both}
 .sigil i:nth-child(even) {background:#edbd76}
-.arrived h2 {animation:ink-text .85s both}
+
 .js .hero-copy h1 em {display:inline-block;animation:ink-text .9s .85s backwards}
-.arrived .atelier-copy,.arrived .echo-head,.arrived .autumn-copy {animation:enter .9s both}
+
 @keyframes iris {0%,58%{opacity:1;clip-path:inset(0)}100%{opacity:0;clip-path:inset(0 0 100% 0)}}
 @keyframes wind {from{rotate:-140deg}to{rotate:45deg}}
 @keyframes ink-text {from{opacity:0;filter:blur(3px);transform:translateY(.15em);clip-path:inset(0 100% 0 0)}to{opacity:1;filter:blur(0);transform:translateY(0);clip-path:inset(-10%)}}
@@ -163,33 +163,40 @@ footer {display:block;padding-block:clamp(38px,6vw,85px) 23px;background:#f5ecdc
 
 }
 
-/* The incoming chapter's irregular alpha edge reveals the previous painting.
-   Keep the edge outside the text and controls, including at narrow widths. */
+/* Paint only the seam strip. A chapter never depends on a mask to be visible. */
+.chapter-edge {
+  pointer-events:none;position:absolute;inset:0 0 auto;height:clamp(28px,4vw,62px);z-index:0;
+  background:linear-gradient(to bottom,var(--edge-color,var(--paper)),transparent);
+}
 @supports (mask-image:linear-gradient(black,transparent)) {
-  main section + section, footer {
-    --seam-height:clamp(56px,7vw,110px);
-    --edge:url('assets/seam-ink.png');
-    margin-top:calc(-1 * var(--seam-height));
-    mask-image:var(--edge),linear-gradient(#000,#000);
-    mask-size:100% var(--seam-height),100% calc(100% - var(--seam-height) + 1px);
-    mask-position:top,bottom;
-    mask-repeat:no-repeat;
-  }
-  #dress {--seam-height:32px;padding-top:calc(32px + 7vh);padding-bottom:calc(8vh + 100px)}
-  #angel {padding-block:calc(var(--seam-height) + 5vh) calc(80px + 8vh)}
-  #echo {--edge:url('assets/seam-pixel.png');padding-block:calc(var(--seam-height) + 5vh) clamp(98px,12vw,160px)}
-  #autumn {--edge:url('assets/seam-maple.png');--seam-height:clamp(100px,12vw,160px);padding-bottom:calc(100px + 5vh)}
-  #shadow {padding-block:calc(var(--seam-height) + 6vh) calc(80px + 6vh)}
-  footer {position:relative;--seam-height:52px;padding-top:calc(var(--seam-height) + 32px)}
-  .hero-foot {bottom:14px}
-  @media(max-width:720px) {
-    #spirit {padding-bottom:96px}
-    #dress {padding-bottom:82px}
-    #angel {padding-bottom:88px}
-    #echo {padding-bottom:115px}
-    #autumn {padding-bottom:90px}
+  html:not(.local-file) .chapter-edge {
+    background:var(--edge-color,var(--paper));
+    mask:var(--edge-art,url('assets/seam-ink.png')) center/100% 100% no-repeat;
+    transform:rotate(180deg);
   }
 }
+#angel {--edge-color:#faf7f1}
+#echo {--edge-color:#201b20;--edge-art:url('assets/seam-pixel.png')}
+#autumn {--edge-color:#e9dfd6;--edge-art:url('assets/seam-maple.png')}
+#shadow,footer {--edge-color:#211b23}
+footer {position:relative;padding-top:clamp(70px,8vw,115px)}
+.scenic-art {background-image:none}
+.scenic-art>img {display:block;width:100%;height:100%;object-fit:cover;object-position:63% center}
+.night-art>img {object-position:46% center}
+@media(max-width:720px){
+ .autumn-panorama>img {object-position:72% center}
+ .night-art>img {object-position:26% center}
+}
+.local-file header,.local-file .glass,.local-file .power,.local-file figcaption {backdrop-filter:none}
+.local-file .picture {mask-image:none}
+.local-file .picture:after {background:linear-gradient(90deg,var(--paper),transparent 27%),linear-gradient(0deg,var(--paper),transparent 17%)}
+@media(max-width:720px){.local-file .picture:after {background:linear-gradient(0deg,var(--paper),transparent 50%)}}
+.tile-loader {position:absolute;inset:0;z-index:3;display:grid;grid-template:repeat(3,1fr)/repeat(4,1fr);pointer-events:none;overflow:hidden;background:#dfcfc1;gap:1px}
+.tile-loader i {background:linear-gradient(125deg,#eaded0,#d0b6aa);animation:tile-turn 1.3s ease-in-out infinite;animation-delay:var(--phase)}
+.eye-study .tile-loader,.scenic-art .tile-loader {background:#33242d}
+.eye-study .tile-loader i,.scenic-art .tile-loader i {background:linear-gradient(125deg,#523843,#33252f)}
+@keyframes tile-turn {0%,70%,100%{transform:perspective(280px) rotateX(0)}35%{transform:perspective(280px) rotateX(70deg)}}
+@media(prefers-reduced-motion:reduce){.tile-loader i{animation:none}}
 
 /* Brief chapter accents. The underlying artwork stays at full contrast. */
 @media(prefers-reduced-motion:no-preference) {
