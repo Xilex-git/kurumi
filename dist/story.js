@@ -13,36 +13,37 @@ function moveChapterInk(link, centerLink = false) {
   }
 }
 const clock = document.querySelector('.clock');
-const hourLabels = ['XII','I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
-hourLabels.forEach((label,index) => {
-  const mark = document.createElement('span');
-  const angle = index * Math.PI / 6;
-  mark.textContent = label;
-  mark.style.left = (50 + 40 * Math.sin(angle)) + '%';
-  mark.style.top = (50 - 40 * Math.cos(angle)) + '%';
-  document.querySelector('.hours').append(mark);
-});
+const progress = document.querySelector('.progress');
+const portrait = document.querySelector('.picture img');
+const autumn = document.querySelector('.autumn-panorama');
+const night = document.querySelector('.night-art');
 let frame = 0;
 function paint() {
   frame = 0;
   const height = window.innerHeight;
+  const scroll = window.scrollY;
+  const scrollRange = Math.max(1,root.scrollHeight - height);
   const rects = scenes.map(scene => scene.getBoundingClientRect());
   const chapter = rects.reduce((current,rect,index) => rect.top <= height * .5 ? index : current, 0);
-  links.forEach((link,index) => {
-    if (index === chapter) link.setAttribute('aria-current','location');
-    else link.removeAttribute('aria-current');
-  });
   if (displayedLink !== links[chapter]) {
+    displayedLink?.removeAttribute('aria-current');
     displayedLink = links[chapter];
+    displayedLink.setAttribute('aria-current','location');
     moveChapterInk(displayedLink, true);
+    scenes[chapter].classList.add('arrived');
   }
-  scenes[chapter].classList.add('arrived');
-  root.style.setProperty('--progress',scrollY / Math.max(1,root.scrollHeight - height));
+  progress.style.setProperty('--progress',scroll / scrollRange);
   if (effectsOn()) {
-    root.style.setProperty('--drift',Math.min(scrollY * .20,180) + 'px');
-    clock.style.setProperty('--ring',(height * .55 - rects[2].top) * .16 + 'deg');
-    root.style.setProperty('--autumn-drift',Math.max(-70,Math.min(70,-rects[4].top * .14)) + 'px');
-    root.style.setProperty('--night-drift',Math.max(-50,Math.min(50,-rects[5].top * .15)) + 'px');
+    if (rects[0].bottom >= 0) portrait.style.setProperty('--drift',Math.min(scroll * .20,180) + 'px');
+    if (rects[2].top <= height && rects[2].bottom >= 0) {
+      clock.style.setProperty('--ring',(height * .55 - rects[2].top) * .16 + 'deg');
+    }
+    if (rects[4].top <= height && rects[4].bottom >= 0) {
+      autumn.style.setProperty('--autumn-drift',Math.max(-70,Math.min(70,-rects[4].top * .14)) + 'px');
+    }
+    if (rects[5].top <= height && rects[5].bottom >= 0) {
+      night.style.setProperty('--night-drift',Math.max(-50,Math.min(50,-rects[5].top * .15)) + 'px');
+    }
   }
 }
 function queuePaint() { if (!frame) frame = requestAnimationFrame(paint); }
@@ -111,14 +112,17 @@ const descriptions = {
   lace:'Black scalloped lace follows the folds of crimson fabric.'
 };
 const detailButtons = [...document.querySelectorAll('[data-detail]')];
-const illustrations = [...plate.querySelectorAll('[data-art]')];
+const details = plate.querySelector('template');
+const illustrations = [plate.querySelector('[data-art]'), ...details.content.querySelectorAll('[data-art]')];
 let requestedView = plate.dataset.view;
 
 async function selectDetail(view) {
   requestedView = view;
   const image = illustrations.find(item => item.dataset.art === view);
   try {
+    if (!image.isConnected) details.before(image);
     image.loading = 'eager';
+    if (image.complete && !image.naturalWidth) image.src = image.getAttribute('src');
     await image.decode();
   } catch {
     if (requestedView === view) plate.querySelector('figcaption').textContent = 'This illustration could not load. Select the detail to retry.';
@@ -160,9 +164,9 @@ summon.addEventListener('click',() => {
 });
 
 // Leave text and controls usable while a slow illustration decodes.
-for (const frame of document.querySelectorAll('[data-loading-art]')) {
+function watchLoadingArt(frame) {
   const image = frame.querySelector('img');
-  if (image.complete) continue;
+  if (image.complete) return;
   let tiles;
   const timer = setTimeout(() => {
     if (image.complete) return;
@@ -185,3 +189,12 @@ for (const frame of document.querySelectorAll('[data-loading-art]')) {
   image.addEventListener('load',finish);
   image.addEventListener('error',finish);
 }
+
+const loadingFrames = new IntersectionObserver(entries => {
+  for (const entry of entries) {
+    if (!entry.isIntersecting) continue;
+    loadingFrames.unobserve(entry.target);
+    watchLoadingArt(entry.target);
+  }
+}, {rootMargin:'100px'});
+for (const frame of document.querySelectorAll('[data-loading-art]')) loadingFrames.observe(frame);

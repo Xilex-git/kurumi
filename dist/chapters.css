@@ -4,15 +4,10 @@ header {
   backdrop-filter:blur(16px) saturate(1.3);
   box-shadow:inset 0 1px 0 #fff,0 2px 16px #34202609;
 }
-nav {gap:clamp(14px,2vw,36px)}
-
-
-
-
 
 @media(pointer:fine) {
-  :root,a,button,select {cursor:url('assets/nib.svg') 2 2,auto}
-  a,button,select {cursor:url('assets/nib.svg') 2 2,pointer}
+  :root {cursor:url('assets/nib.svg') 2 2,auto}
+  a,button {cursor:url('assets/nib.svg') 2 2,pointer}
 }
 .glass,.detail-plate figcaption,.power {
   border:1px solid #ffdfb440;
@@ -34,7 +29,7 @@ nav {gap:clamp(14px,2vw,36px)}
   width:min(100%, 47vh, 470px); justify-self:center; margin:0; padding:7px;
   border:1px solid #b9a38c; background:#f8f1e4; box-shadow:8px 10px 0 #baa99736;
 }
-.detail-window {position:relative; overflow:hidden; aspect-ratio:var(--figure-ratio,2/3); background:#f6efdf}
+.detail-window {position:relative; overflow:hidden; aspect-ratio:2/3; background:#f6efdf}
 .detail-art {
   position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
   opacity:0; transform:scale(1.035);
@@ -57,7 +52,7 @@ nav {gap:clamp(14px,2vw,36px)}
 .pixel-bar button {background:#e8bc9f;border:1px solid #ffe3c6;color:#342535;padding:9px 12px;box-shadow:inset -2px -2px #ad7978}
 .pixel-bar b {color:#8d374a}
 #autumn {min-height:105svh;display:flex;align-items:flex-end;padding:clamp(45px,10vh,125px) var(--pad);background:#51313a;color:white}
-.autumn-panorama {position:absolute;inset:-75px 0;background:url('assets/autumn.webp') 63% 50%/cover;z-index:-2;transform:translateY(var(--autumn-drift,0px))}
+.autumn-panorama {position:absolute;inset:-75px 0;z-index:-2;transform:translateY(var(--autumn-drift,0px))}
 .autumn-copy {padding:clamp(24px,3vw,55px);border-radius:8px;max-width:min(450px,100%);background-color:#2a1b24c9}
 .autumn-copy h2 {font-size:clamp(55px,6vw,98px)}
 .autumn-copy .kicker {color:#ffdaab}
@@ -91,10 +86,6 @@ nav {gap:clamp(14px,2vw,36px)}
 @keyframes shard {from{transform:rotate(var(--angle)) translateY(-3px) scale(.5);opacity:1}to{transform:rotate(var(--angle)) translateY(calc(-1 * var(--reach))) scale(.7);opacity:0}}
 @keyframes sprite-idle {50%{transform:translateY(-2px)}}
 @keyframes echo-in {from{opacity:0;filter:brightness(2);translate:-65% -2px}to{opacity:.75;translate:-50% 0}}
-@media(max-width:940px){
-
-
-}
 @media(max-width:720px){
   .atelier,.echo-head {grid-template-columns:1fr;gap:24px}
   .atelier {padding-block:65px}.detail-controls{margin-bottom:0}
@@ -103,7 +94,6 @@ nav {gap:clamp(14px,2vw,36px)}
   .echo-head {margin-bottom:27px;gap:15px}
   .autumn-copy {width:100%}
   #autumn {min-height:98svh;padding-bottom:28px}
-  .autumn-panorama {background-position:72% center}
   .chapter-lines i {width:9px}.chapter-lines i:first-child {width:22px}
 
 
@@ -120,7 +110,6 @@ header nav {
 }
 header nav::-webkit-scrollbar {display:none}
 nav a {white-space:nowrap;transition:color .24s}
-nav a[aria-current]:after {display:none}
 nav .chapter-ink {
   position:absolute;left:0;bottom:11px;height:2px;width:var(--tab-width,0px);
   transform:translateX(var(--tab-x,0px));background:linear-gradient(90deg,#983b4400,#9b3f49 18%,#9b3f49 82%,#983b4400);
@@ -129,7 +118,7 @@ nav .chapter-ink {
 .chapter-ink:after {content:'';position:absolute;left:50%;top:-1.5px;width:5px;height:5px;background:var(--red);transform:rotate(45deg)}
 .byline {font:13px Georgia,serif;color:#644849;white-space:nowrap}
 .byline strong {font-weight:700;font-size:18px;color:#8b3042}
-footer {display:block;padding-block:clamp(38px,6vw,85px) 23px;background:#f5ecdc}
+footer {padding-block:clamp(38px,6vw,85px) 23px;background:#f5ecdc}
 .design-credit {scroll-margin-top:var(--header);padding:0 0 28px;border-bottom:1px solid #ba9e85}
 .design-credit p {font:600 14px/1.5 var(--mono);color:#5f3a40;margin-bottom:5px}
 .design-credit strong {font:700 clamp(64px,8vw,128px)/1 Georgia,serif;letter-spacing:-.065em;color:#8d3042}
@@ -137,19 +126,16 @@ footer {display:block;padding-block:clamp(38px,6vw,85px) 23px;background:#f5ecdc
 .footer-notes {display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding-top:21px}
 #angel {grid-template-columns:1.35fr 1fr;gap:clamp(25px,5vw,100px)}
 .clock-stage {width:100%}
-.eye-study {position:relative;width:100%;aspect-ratio:var(--eye-ratio,3/2);isolation:isolate;background:#291b22;outline:1px solid #cba27961;outline-offset:6px;box-shadow:0 16px 60px #10090e80}
+.eye-study {position:relative;width:100%;aspect-ratio:3/2;isolation:isolate;background:#291b22;outline:1px solid #cba27961;outline-offset:6px;box-shadow:0 16px 60px #10090e80}
 .eye-paint {display:block;width:100%;height:100%}
 .eye-study .clock {
   position:absolute;left:50%;top:51.3%;translate:-50% -50%;
   width:43%;border:1px solid #5a301291;box-shadow:inset 0 0 0 2px #f8cb6e60;
-  background:none;
 }
 .eye-study .clock .minute-hand {width:1.4%;left:49.3%;background:#4c2313;filter:drop-shadow(0 0 1px #ffe09c)}
 .eye-study .clock .hour-hand {width:2%;left:49%;background:#2b1813}
 .eye-study .pin {width:6%;height:6%;background:#351a12;border:1px solid #efc164}
 .eye-study .dial-ring {opacity:.75}
-/* The illustration already carries the twelve Roman hour marks. */
-.eye-study .hours {display:none}
 @media(max-width:940px) {
   :root {--header:106px}
   header {height:var(--header);display:grid;grid-template-columns:1fr auto;grid-template-rows:54px 52px;row-gap:0}
@@ -180,7 +166,6 @@ footer {display:block;padding-block:clamp(38px,6vw,85px) 23px;background:#f5ecdc
 #autumn {--edge-color:#e9dfd6;--edge-art:url('assets/seam-maple.png')}
 #shadow,footer {--edge-color:#211b23}
 footer {position:relative;padding-top:clamp(70px,8vw,115px)}
-.scenic-art {background-image:none}
 .scenic-art>img {display:block;width:100%;height:100%;object-fit:cover;object-position:63% center}
 .night-art>img {object-position:46% center}
 @media(max-width:720px){
