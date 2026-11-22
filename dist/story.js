@@ -106,21 +106,20 @@ document.addEventListener('click',event => {
 });
 const plate = document.querySelector('.detail-plate');
 const descriptions = {
-  full:'Kurumi’s Astral Dress, from headdress to hem.',
+  full:'Kurumi\u2019s Astral Dress, from headdress to hem.',
   ribbon:'Scarlet ribbons trace the crown of her head.',
   clock:'Gold hands and a ring of numerals fill her left iris.',
   lace:'Black scalloped lace follows the folds of crimson fabric.'
 };
 const detailButtons = [...document.querySelectorAll('[data-detail]')];
-const details = plate.querySelector('template');
-const illustrations = [plate.querySelector('[data-art]'), ...details.content.querySelectorAll('[data-art]')];
+const illustrations = [...plate.querySelectorAll('[data-art]')];
 let requestedView = plate.dataset.view;
 
 async function selectDetail(view) {
   requestedView = view;
   const image = illustrations.find(item => item.dataset.art === view);
+  if (!image) return;
   try {
-    if (!image.isConnected) details.before(image);
     image.loading = 'eager';
     if (image.complete && !image.naturalWidth) image.src = image.getAttribute('src');
     await image.decode();
@@ -128,7 +127,6 @@ async function selectDetail(view) {
     if (requestedView === view) plate.querySelector('figcaption').textContent = 'This illustration could not load. Select the detail to retry.';
     return;
   }
-  // A slower image must not replace the reader’s most recent selection.
   if (view !== requestedView) return;
   plate.dataset.view = view;
   for (const item of illustrations) {
@@ -163,7 +161,6 @@ summon.addEventListener('click',() => {
   summon.firstChild.textContent = total === 5 ? 'Recall the echoes ' : 'Call an echo ';
 });
 
-// Leave text and controls usable while a slow illustration decodes.
 function watchLoadingArt(frame) {
   const image = frame.querySelector('img');
   if (image.complete) return;
